@@ -14,14 +14,13 @@ end
 
 get '/' do
   @links = [ 'memory', 'disk' ]
-  @info = SystemInfo.all
+  @info = SystemInfo.all.to_json
   erb :home, layout: :index
 end
 
 
 get '/:task' do |task|
   @report = task.to_sym
-
   @data = case task
   when 'memory'
     `vm_stat`[/Pages free:\W+(\d+)/] + " MB"
@@ -30,7 +29,7 @@ get '/:task' do |task|
   else
     false
 end
-  SystemInfo.new(@report => @data).save if @data
+  SystemInfo.new(task: @report, info: @data ).save if @data
   erb :report, layout: :index
 end
 
